@@ -27,114 +27,62 @@ class BaseView(ListAPIView):
             queryset = backend().filter_queryset(self.request, queryset, self)
         return queryset
 
-
-class ProjectView(BaseView):
-    serializer_class = ProjectSerializer
-    search_fields = ['title']
-
     def get(self,request):
-        data = self.filter_queryset(Project.objects.filter(user=request.user))
+        instance = self.model_class.objects.filter(user=request.user)
+        data = self.filter_queryset(instance)
         page = self.paginate_queryset(data)
-        serializer_class = ProjectSerializer(page, many=True)
-        return self.get_paginated_response(serializer_class.data)
+        serializers = self.serializer_class(page, many=True)
+        return self.get_paginated_response(serializers.data)
 
 
-class ProjectUpdateView(APIView):
+class UpdateView(APIView):
     permission_classes = (IsAuthenticated, CustomPermission)
-    serializer_class = ProjectSerializer
     filter_backends = (filters.SearchFilter)
 
     def get(self, request, pk):
-        obj = Project.objects.get(id=pk)
+        obj = self.model_class.objects.get(id=pk)
         self.check_object_permissions(self.request, obj)
-        serializer = ProjectSerializer(obj)
+        serializer = self.serializer_class(obj)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def put(self,request,pk):
-        obj = Project.objects.get(id=pk)
+        obj = self.model_class.objects.get(id=pk)
         self.check_object_permissions(self.request,obj)
-        serializer = ProjectSerializer(instance=obj, data=request.data)
+        serializer = self.serializer_class(instance=obj, data=request.data)
         if serializer.is_valid():
             serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def delete(self,request,pk):
-        obj = Project.objects.get(id=pk)
+        obj = self.model_class.objects.get(id=pk)
         self.check_object_permissions(self.request,obj)
         obj.delete()
-        return Response({'Message': 'Project is deleted'}, status=status.HTTP_200_OK)
+        return Response({'Message': 'Entry deleted'}, status=status.HTTP_200_OK)
 
 
+class ProjectView(BaseView):
+    model_class = Project
+    serializer_class = ProjectSerializer
+    search_fields = ['title']
+
+class ProjectUpdateView(UpdateView):
+    model_class = Project
+    serializer_class = ProjectSerializer
 
 class EducationView(BaseView):
+    model_class = Education
     serializer_class = EducationSerializer
     search_fields = ['degree']
 
-    def get(self,request):
-        data = self.filter_queryset(Education.objects.filter(user=request.user))
-        page = self.paginate_queryset(data)
-        serializer_class = EducationSerializer(page, many=True)
-        return self.get_paginated_response(serializer_class.data)
-        
-
-class EducationUpdateView(APIView):
-    permission_classes = (IsAuthenticated, CustomPermission)
+class EducationUpdateView(UpdateView):
+    model_class = Education
     serializer_class = EducationSerializer
 
-    def get(self, request, pk):
-        obj = Education.objects.get(id=pk)
-        self.check_object_permissions(self.request, obj)
-        serializer = EducationSerializer(obj)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def put(self,request,pk):
-        obj = Education.objects.get(id=pk)
-        self.check_object_permissions(self.request,obj)
-        serializer = EducationSerializer(instance=obj, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def delete(self,request,pk):
-        obj = Education.objects.get(id=pk)
-        self.check_object_permissions(self.request,obj)
-        obj.delete()
-        return Response({'Message': 'Project is deleted'}, status=status.HTTP_200_OK)
-
-
-
 class ExperienceView(BaseView):
+    model_class = Experience
     serializer_class = ExperienceSerializer
     search_fields = ['company_name']
-
-    def get(self,request):
-        experience_data = self.filter_queryset(Experience.objects.filter(user=request.user))
-        page = self.paginate_queryset(experience_data)
-        serializer_class = ExperienceSerializer(page, many=True)
-        return self.get_paginated_response(serializer_class.data)
-
-class ExperienceUpdateView(APIView):
-    permission_classes = (IsAuthenticated, CustomPermission)
+    
+class ExperienceUpdateView(UpdateView):
+    model_class = Experience
     serializer_class = ExperienceSerializer
-
-    def get(self, request, pk):
-        obj = Experience.objects.get(id=pk)
-        self.check_object_permissions(self.request, obj)
-        serializer = ExperienceSerializer(obj)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-    def put(self,request,pk):
-        obj = Experience.objects.get(id=pk)
-        self.check_object_permissions(self.request,obj)
-        serializer = ExperienceSerializer(instance=obj, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-    def delete(self,request,pk):
-        obj = Experience.objects.get(id=pk)
-        self.check_object_permissions(self.request,obj)
-        obj.delete()
-        return Response({'Message': 'Project is deleted'}, status=status.HTTP_200_OK)
