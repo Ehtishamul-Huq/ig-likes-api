@@ -9,7 +9,7 @@ from rest_framework import filters
 from .pagination import CustomPagination
 from .permissions import CustomPermission
 
-class BaseView(APIView):
+class BaseView(ListAPIView):
     permission_classes = (IsAuthenticated,)
     filter_backends = (filters.SearchFilter,)
     pagination_class = CustomPagination
@@ -28,7 +28,7 @@ class BaseView(APIView):
         return queryset
 
 
-class ProjectView(BaseView, ListAPIView):
+class ProjectView(BaseView):
     serializer_class = ProjectSerializer
     search_fields = ['title']
 
@@ -39,7 +39,7 @@ class ProjectView(BaseView, ListAPIView):
         return self.get_paginated_response(serializer_class.data)
 
 
-class ProjectUpdateView(ListAPIView):
+class ProjectUpdateView(APIView):
     permission_classes = (IsAuthenticated, CustomPermission)
     serializer_class = ProjectSerializer
     filter_backends = (filters.SearchFilter)
@@ -66,7 +66,7 @@ class ProjectUpdateView(ListAPIView):
 
 
 
-class EducationView(BaseView, ListAPIView):
+class EducationView(BaseView):
     serializer_class = EducationSerializer
     search_fields = ['degree']
 
@@ -103,7 +103,7 @@ class EducationUpdateView(APIView):
 
 
 
-class ExperienceView(BaseView, ListAPIView):
+class ExperienceView(BaseView):
     serializer_class = ExperienceSerializer
     search_fields = ['company_name']
 
