@@ -11,7 +11,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserProfile
-        fields = ('first_name', 'last_name', 'phone_number', 'age', 'gender')
+        fields = ('first_name', 'last_name', 'instagram_id')
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
 
@@ -29,9 +29,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
                 user = user,
                 first_name = profile_data['first_name'],
                 last_name = profile_data['last_name'],
-                phone_number = profile_data['phone_number'],
-                age = profile_data['age'],
-                gender = profile_data['gender']
+                instagram_id = profile_data['instagram_id']
             )
             return user
 
@@ -62,16 +60,3 @@ class UserLoginSerializer(serializers.Serializer):
             'email':user.email,
             'token': jwt_token.access_token
         }
-
-class ForgotSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ('id', 'email')
-
-
-class ChangePassSerializer(serializers.ModelSerializer):
-    confirm_password = serializers.CharField(max_length=128, write_only=True, required=False)
-
-    class Meta:
-        model = User
-        fields = ('password', 'confirm_password')
